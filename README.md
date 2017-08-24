@@ -62,6 +62,7 @@ Some words are more relevant for doc summarization than others. These words have
 * occur in keyword list (tokenized and trigrammized)
 * occur in title
 * occur in conclusion
+* authors
 * first occurence at the beginning of the document
 * high TFIDF score
 * words that revealed to be topic-relevant in topic modeling
