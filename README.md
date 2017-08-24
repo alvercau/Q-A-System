@@ -1,5 +1,5 @@
 # Q-A-System
-__ Lili the chatbot that answers questions about linguistics.__
+__Lili the chatbot that answers questions about linguistics.__
 Classification and unsupervised learning to populate Q-A database.
 
 From input question, extract:
@@ -11,7 +11,7 @@ Find docs that contain the keywords in question, check whether they contain the 
 For candidate docs, calculate sentence scores. Start summary with sentence with highest scores. Exclude sentences that are too similar to sentences that were already added to the stack to avoid redundancy. Stop when summary has desired length and return answer.
 Decision:
 * If too many candidates: 'The question is too broad to answer in a couple of lines' + recommend literature
-* If not enough candidates: 'Sorry, I do not have enough information to answer your question
+* If not enough candidates: 'Sorry, I do not have enough information to answer your question'
 * Else: return answer.
 
 ## Data
@@ -44,7 +44,7 @@ Assign score to trigrammized sentences based on following features:
 * Length of sentence
 * Number of Named Entities
 * Number of top K-important words (see __keyword extraction__)
-* Sentence position in the doc: sentences in introductions and summaries are more likely to be relevant. The problem is that after conversion, the docs do not have much of a structure, they are basically on huge string. It should be possible to recover some structure based on number of white lines and words such as 'section', 'chapter', '1.' etc.
+* Sentence position in the doc: sentences in introductions and summaries are more likely to be relevant. The problem is that after conversion, the docs do not have much of a structure, they are basically a huge string. It should be possible to recover some structure based on number of white lines and words such as 'section', 'chapter', '1.' etc.
 * Number of Upper Case words: often special terminology or names
 * Number of nouns, verbs and adjectives
 
