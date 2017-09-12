@@ -26,7 +26,7 @@ Open source linguistic research articles available on [Lingbuzz](https://ling.au
 ## Design
 
 ### [Classification](https://github.com/alvercau/Q-A-System/blob/master/notebooks/Classification.ipynb)
-For multi-document summarization, it is necessary to assign a relevance score to each sentence, in order to be able to create some sort of ranking among them. This was obtained through a classification model. The model was trained on sentences from the abstract and sentences from examples. The first are informative, the second aren't. The class of each sentence depends on:
+For multi-document summarization, it is necessary to assign a relevance score to each sentence, in order to be able to create some sort of ranking among them. This was obtained through a classification model. The model was trained on sentences from the abstract and sentences from examples. The first are informative, the second aren't. The [class of each sentence depends on](https://github.com/alvercau/Q-A-System/blob/master/notebooks/Feature_engineering.ipynb):
 * the length of the sentence: longer sentences are more likely to be more informative than very short sentences
 * number of Named Entities
 * number of top [k-important](https://github.com/alvercau/Q-A-System/blob/master/notebooks/Keyword_extraction.ipynb) words
@@ -83,7 +83,7 @@ When a question comes in, it is broken up into its words (stopwords are removed)
 Based on the keywords, a set of candidate sentences is identified. If a sentence is present more frequently in the set of candidates (i.e., it contains more than one of the keywords), it is added to the answer. If there is a tie in frequency, the sentence with the highest score is added to the answer. In order to avoid redundancy in the answer, whenever a sentence is added, sentences that are too similar to the added sentence are eliminated from the set of candidate sentences. The summarization is broken off when the summary has the desired length or when there are no candidates left.  
 
 The search algorithm has the following shortcomings:
-* it cannot deal with out of vocabulary words. A possible work around is to look up the most similar words and check whether these are in the database. However, this made the query too complex and less accurate, so I decided to abandon this strategy.
+* it cannot deal with out of vocabulary words. A possible work around is to look up the most [similar words](https://github.com/alvercau/Q-A-System/blob/master/notebooks/Keyword_similarity.ipynb) and check whether these are in the database. However, this made the query too complex and less accurate, so I decided to abandon this strategy.
 * when questions about authors are asked, the search is limited to papers written by these authors. However, papers written by other authors may contain references to work of the queried authors that may be relevant for the summary.
 * the structure of the question is not taken into account because the search is keyword based. For instance, a question like 'What do you know about tense semantics?' will result into a summary based on the keywords 'know', 'tense' and 'semantics'. It would be better to do the query on 'tense semantics' only. For this to be possible, it is necessary to automatically identify the scope of the question. In general, in English, the scope falls on the most deeply embedded verbal argument. Restricting search with taking into account the semantic structure of the question thus requires syntactic parsing of the question (or some other techniques that allow for keyword ranking).
 
