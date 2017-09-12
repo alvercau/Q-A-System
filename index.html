@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <!-- Required meta tags -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-alpha.6/css/bootstrap.min.css" integrity="sha384-rwoIResjU2yc3z8GV/NPeZWAv56rSmLldC3R/AZzGRnGxQQKnKkoFVhFQhNUwEyJ" crossorigin="anonymous">
+  </head>
+  <style>
+body {
+  color: black;
+  background-image: url('/static/burlap.png');
+  background-attachment: fixed;
+  background-repeat: no-repeat;
+  background-position: center top;
+  background-size:cover;
+  font-family: Cochin;
+  font-size: 4pt;
+  margin-top: 10px;
+  margin-left: 20px;
+  margin-right: 20px;
+  margin-bottom: 10px;
+}
+
+.button {
+  color: white;
+  background-color: black;
+  font-family: Cochin;
+  font-size: 12pt;
+  height: 50px;
+  width: 150px;
+  border: solid #007e00 8px;
+  border-radius: 25px;
+  box-shadow: black 2px 2px 2px 2px;
+  position: relative;
+  left: 800px;
+}
+
+textarea {
+  color: white;
+  background-color: black;
+  border: solid #006400 10px;
+  border-radius: 15px;
+  font-family: Cochin;
+  font-size: 24pt;
+  box-shadow: black 2px 2px 2px 2px;
+  position: center;
+}
+
+select {
+  font-family: Cochin;
+  font-size: 12pt;
+  width: 350px;
+  margin-left: 0px;
+}
+
+td {
+  font-family: Cochin;
+  font-size: 18pt;
+}
+
+h1 {
+  font-size: 80px;
+  /*left: 750px;*/
+  text-align: center;
+  color: #003100;
+}
+
+h2 {
+  text-align: center;
+  font-size: 52px;
+  margin: 20px 20px 20px 20px;
+}
+
+h3 {
+  text-align: center;
+  font-size: 46px;
+  position: relative;
+  padding-top: 300px;
+}
+
+img {
+  border: solid #003200 10px;
+  border-radius: 100%;
+  box-shadow: black 2px 2px 2px 2px;
+  margin: 20px 20px 20px 20px;
+}
+p2  {
+  text-align: center;
+  margin-left: 53%;
+}
+
+</style>
+
+<body onLoad="initScreen()">
+
+  <form name="mainscreen" onkeypress="if(event.keyCode == 13) {mainroutine();return false}"><br />
+
+    <table align="center">
+      <tr>
+        <td>
+        <div class="row">
+        <div class="col-sm-4"></div>
+        <div class="col-sm-8">
+          <h1>Lili the linguistics Chatbot</h1>
+        </div>
+        </div>
+
+          <div class="row">
+            <div class="col-sm-4">
+              <h2>Hi! I am Lili!</h2>
+              <img src="/static/myAvatar.png" alt="Lili AI" style="width:250px;height:250px;position:absolute; left: 110px;">
+              <br />
+              <h3>Ask me any question about linguistics, and I will do my best to answer!</h3>
+              <br />
+            </div>
+            <div class="col-sm-8">
+               Lili Says<br />
+              <textarea name="BasicTextArea2" rows="10" cols="62"></textarea><br /> Type Here and Hit "Enter"<br />
+              <!-- <textarea name="BasicTextArea3" rows="2" cols="75" id="chatbox"></textarea><br /> Type Here and Hit "Enter"<br /> -->
+              <textarea name="BasicTextArea4" rows="1" cols="62" >
+              </textarea>
+
+        </td>
+      </tr>
+    </table>
+
+    <p2>
+      <br />
+      <input id=runbutton class="button" type="button" value="Enter" name="run_button" onClick="mainroutine()">
+      <br /><br /><br /></p2>
+  </form>
+
+  </div>
+  </div>
+  <script>
+    //links
+//http://eloquentjavascript.net/09_regexp.html
+//https://developer.mozilla.org/en-US/docs/Web/JavaScript/Guide/Regular_Expressions
+nlp = window.nlp_compromise;
+
+var messages = [], //array that hold the record of each string in chat
+  lastUserMessage = "", //keeps track of the most recent input string from the user
+  botMessage = "", //var keeps track of what the chatbot is going to say
+  botName = 'Lili', //name of the chatbot
+  talking = true; //when false the speach function doesn't work
+//
+//there is a problem with synchronicity. that's why I added async: false. However, it's deprecated.
+function chatbotResponse(lastUserMessage) {
+  talking = true;
+  $.ajax({
+    type: "POST",
+    async: true,
+    contentType: "application/json; charset=utf-8",
+    url: "/",
+    dataType: "json",
+    data: JSON.stringify({"question": lastUserMessage}),
+    success: function (d) {
+      //console.log(d)
+      //console.log(reply)
+      botMessage = d['answer'];
+      updatescreen()
+      //console.log(botMessage)
+      //dialog = dialog + "Lili: " + botMessage +  '\r' + "\n";
+  }
+ });
+}
+//
+//this runs each time enter is pressed.
+//It controls the overall input and output
+function newEntry() {
+  //if the message from the user isn't empty then run 
+  if (document.getElementById("chatbox").value != "") {
+    //pulls the value from the chatbox ands sets it to lastUserMessage
+    lastUserMessage = document.getElementById("chatbox").value;
+    //sets the chat box to be clear
+    document.getElementById("chatbox").value = "";
+    //adds the value of the chatbox to the array messages
+    messages.push(lastUserMessage);
+    console.log(messages)
+    //Speech(lastUserMessage);  //says what the user typed outloud
+    //sets the variable botMessage in response to lastUserMessage
+    chatbotResponse(lastUserMessage);
+    console.log(botMessage)
+    messages.push("<b>" + botName + ":</b> " + botMessage);
+    console.log(messages)
+    // says the message using the text to speech function written below
+    Speech(botMessage);
+    //outputs the last few array elements of messages to html
+    }
+  }
+  
+
+
+//text to Speech
+//https://developers.google.com/web/updates/2014/01/Web-apps-that-talk-Introduction-to-the-Speech-Synthesis-API
+function Speech(say) {
+  if ('speechSynthesis' in window && talking) {
+    var utterance = new SpeechSynthesisUtterance(say);
+    //msg.voice = voices[10]; // Note: some voices don't support altering params
+    //msg.voiceURI = 'native';
+    //utterance.volume = 1; // 0 to 1
+    //utterance.rate = 0.1; // 0.1 to 10
+    //utterance.pitch = 1; //0 to 2
+    //utterance.text = 'Hello World';
+    //utterance.lang = 'en-US';
+    speechSynthesis.speak(utterance);
+  }
+}
+
+//runs the keypress() function when a key is pressed
+document.onkeypress = keyPress;
+//if the key pressed is 'enter' runs the function newEntry()
+function keyPress(e) {
+  var x = e || window.event;
+  var key = (x.keyCode || x.which);
+  if (key == 13 || key == 3) {
+    //runs this function when enter is pressed
+    newEntry();
+  }
+  if (key == 38) {
+    console.log('hi')
+      //document.getElementById("chatbox").value = lastUserMessage;
+  }
+}
+
+//clears the placeholder text ion the chatbox
+//this function is set to run when the users brings focus to the chatbox, by clicking on it
+function placeHolder() {
+  document.getElementById("chatbox").placeholder = "";
+}
+
+
+
+lastUserMessage = ""
+botMessage = ""
+//-----The Core Code------
+
+
+//-------
+ function mainroutine() {
+ lastUserMessage = document.mainscreen.BasicTextArea4.value;
+ botMessage = chatbotResponse(lastUserMessage)
+
+}
+
+//-------
+
+function initScreen() {
+ updatescreen()
+}
+
+//-------
+function updatescreen() {
+ document.mainscreen.BasicTextArea2.value = botMessage
+ //document.mainscreen.BasicTextArea3.value = lastUserMessage
+ document.mainscreen.BasicTextArea4.value = ""
+}
+
+//-------
+function initialCap(field) {
+   field = field.substr(0, 1).toUpperCase() + field.substr(1);
+   return field
+}
+
+
+
+</script>
+    <!-- jQuery first, then Tether, then Bootstrap JS. -->
+    <script src="https://code.jquery.com/jquery-3.1.1.slim.min.js" integrity="sha384-A7FZj7v+d/sdmMqp/nOQwliLvUsJfDHW+k9Omg/a/EheAdgtzNs3hpfag6Ed950n" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/tether/1.4.0/js/tether.min.js" integrity="sha384-DztdAPBWPRXSA/3eYEEUWrWCy7G5KFbe8fFjk5JAIxUYHKkDx6Qin1DkWx51bBrb" crossorigin="anonymous"></script>
+    <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-alpha.6/js/bootstrap.min.js" integrity="sha384-vBWWzlZJ8ea9aCX4pEW3rVHjgjt7zpkNpZk+02D9phzyeVkE+jo0ieGizqPLForn" crossorigin="anonymous"></script>
+  </body>
+</html>
