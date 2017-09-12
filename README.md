@@ -9,7 +9,7 @@ Bot pipeline:
 
 ## Data
 
-Open source linguistic research articles available on [Lingbuzz](https://ling.auf.net). The papers and metadata were scraped with a [Scrapy Spider](add link to spider). These papers were converted from pdf format to plain text format and inserted in the [papers database](add link to update_mongo.py). Each document in the Mongo database has the following format:  
+Open source linguistic research articles available on [Lingbuzz](https://ling.auf.net). The papers and metadata were scraped with a [Scrapy Spider](https://github.com/alvercau/Q-A-System/blob/master/lingbuzz/lingbuzz/spiders/spider_lingbuzz.py). These papers were converted from pdf format to plain text format and inserted in the [papers database](https://github.com/alvercau/Q-A-System/blob/master/update_Mongo.py). Each document in the Mongo database has the following format:  
 
         {
         '_id': ObjectId('598b44c407d7df07719383e0'),
@@ -25,11 +25,11 @@ Open source linguistic research articles available on [Lingbuzz](https://ling.au
 
 ## Design
 
-### [Classification](add url to classification notebook)
+### [Classification](https://github.com/alvercau/Q-A-System/blob/master/notebooks/Classification.ipynb)
 For multi-document summarization, it is necessary to assign a relevance score to each sentence, in order to be able to create some sort of ranking among them. This was obtained through a classification model. The model was trained on sentences from the abstract and sentences from examples. The first are informative, the second aren't. The class of each sentence depends on:
 * the length of the sentence: longer sentences are more likely to be more informative than very short sentences
 * number of Named Entities
-* number of top [k-important](add url to keyword extraction notebook) words
+* number of top [k-important](https://github.com/alvercau/Q-A-System/blob/master/notebooks/Keyword_extraction.ipynb) words
 * sentence position in the doc: sentences in introductions and summaries are more likely to be relevant. 
 * number of Upper Case words: often special terminology or names
 * number of nouns, verbs and adjectives, as these words contain the core meaning of sentences.
@@ -57,7 +57,7 @@ The feature importances are the following:
 I decided to use the Logistic regression with normalization, since this model gave me probabilities for each sentence. These probabilities are the sentences' informativeness score.
 
 
-### Populate [sentence database](link to sentence db notebook)
+### Populate [sentence database](https://github.com/alvercau/Q-A-System/blob/master/notebooks/Sentence_database.ipynb)
 
 The structure is as follows:
     {
@@ -70,10 +70,10 @@ The structure is as follows:
     'type_entity': [type, word]
     }
     
-[Sentence similarities](add link to sentence similarities notebook) were determined by calculating the cosine distance between the weighted average word vectors of the nouns, verbs and adjectives in each sentence. [Word vectors](link to word model notebook) were computed by using a pre-trained fastText model. This model omputes vectors based on character n-grams instead of on words, which allows for more detailed vectors. For instance, all words ending in -ly (adverbs) will have vectors that are not that far from each other, even though the adverbs in question may have different meanings and hence different ddistributions. Also, words of the same lexical group (ex. quick, quickly, quicker) will have similar vectors despite their different distribution, since they share a lot of characters. Thanks to this, the model can also compute vectors for out-of-vocabulary items. Since most of the linguistic terminology was not included in any pre-trained word2vec model, and since my own word2vec model gave pretty bad results, I decided to use the fastText model. I also ran the corpus through a Gensim bigrammizer in order to identify frequent collocations (ex. sign language) and treat them as a single word.
+[Sentence similarities](https://github.com/alvercau/Q-A-System/blob/master/notebooks/Sentence_similarity.ipynb) were determined by calculating the cosine distance between the weighted average word vectors of the nouns, verbs and adjectives in each sentence. [Word vectors](https://github.com/alvercau/Q-A-System/blob/master/notebooks/Word_model.ipynb) were computed by using a pre-trained fastText model. This model omputes vectors based on character n-grams instead of on words, which allows for more detailed vectors. For instance, all words ending in -ly (adverbs) will have vectors that are not that far from each other, even though the adverbs in question may have different meanings and hence different ddistributions. Also, words of the same lexical group (ex. quick, quickly, quicker) will have similar vectors despite their different distribution, since they share a lot of characters. Thanks to this, the model can also compute vectors for out-of-vocabulary items. Since most of the linguistic terminology was not included in any pre-trained word2vec model, and since my own word2vec model gave pretty bad results, I decided to use the fastText model. I also ran the corpus through a Gensim bigrammizer in order to identify frequent collocations (ex. sign language) and treat them as a single word.
 Sentence vectors were calculated on nouns, verbs and adjectives only, since the 'gap' in sentence similarity was much bigger when taking into account only informative words than when taking into account all words. This allowed me to set a similarity threshold. 
 
-### [Search](link to search notebook)
+### [Search](https://github.com/alvercau/Q-A-System/blob/master/notebooks/Search.ipynb)
 Search is keyword based.  
 
 When a question comes in, it is broken up into its words (stopwords are removed). 
@@ -87,5 +87,5 @@ The search algorithm has the following shortcomings:
 * when questions about authors are asked, the search is limited to papers written by these authors. However, papers written by other authors may contain references to work of the queried authors that may be relevant for the summary.
 * the structure of the question is not taken into account because the search is keyword based. For instance, a question like 'What do you know about tense semantics?' will result into a summary based on the keywords 'know', 'tense' and 'semantics'. It would be better to do the query on 'tense semantics' only. For this to be possible, it is necessary to automatically identify the scope of the question. In general, in English, the scope falls on the most deeply embedded verbal argument. Restricting search with taking into account the semantic structure of the question thus requires syntactic parsing of the question (or some other techniques that allow for keyword ranking).
 
-### [The bot](url to flask and html)
+### [The bot](https://github.com/alvercau/Q-A-System/blob/master/search.py)
 The back end of the bot itself is a Flask app. The front-end is written in CSS and JS.
