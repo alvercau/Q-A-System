@@ -60,15 +60,16 @@ I decided to use the Logistic regression with normalization, since this model ga
 ### Populate [sentence database](https://github.com/alvercau/Q-A-System/blob/master/notebooks/Sentence_database.ipynb)
 
 The structure is as follows:
-    {
-    '_id': ObjectId('59a85acdb18b146ddb84ff2b'),
-    'sentence': 'The second goal is to investigate the role of syntax in these patterns.',
-    'paper_id' : id from origin paper in paper DB,
-    'score': sentence_score predicted by classification model,
-    'keywords: list of k_important words
-    'similar_sentences: ID1, ID2, ...
-    'type_entity': [type, word]
-    }
+
+                {
+                '_id': ObjectId('59a85acdb18b146ddb84ff2b'),
+                'sentence': 'The second goal is to investigate the role of syntax in these patterns.',
+                'paper_id' : id from origin paper in paper DB,
+                'score': sentence_score predicted by classification model,
+                'keywords: list of k_important words
+                'similar_sentences: ID1, ID2, ...
+                'type_entity': [type, word]
+                }
     
 [Sentence similarities](https://github.com/alvercau/Q-A-System/blob/master/notebooks/Sentence_similarity.ipynb) were determined by calculating the cosine distance between the weighted average word vectors of the nouns, verbs and adjectives in each sentence. [Word vectors](https://github.com/alvercau/Q-A-System/blob/master/notebooks/Word_model.ipynb) were computed by using a pre-trained fastText model. This model omputes vectors based on character n-grams instead of on words, which allows for more detailed vectors. For instance, all words ending in -ly (adverbs) will have vectors that are not that far from each other, even though the adverbs in question may have different meanings and hence different ddistributions. Also, words of the same lexical group (ex. quick, quickly, quicker) will have similar vectors despite their different distribution, since they share a lot of characters. Thanks to this, the model can also compute vectors for out-of-vocabulary items. Since most of the linguistic terminology was not included in any pre-trained word2vec model, and since my own word2vec model gave pretty bad results, I decided to use the fastText model. I also ran the corpus through a Gensim bigrammizer in order to identify frequent collocations (ex. sign language) and treat them as a single word.
 Sentence vectors were calculated on nouns, verbs and adjectives only, since the 'gap' in sentence similarity was much bigger when taking into account only informative words than when taking into account all words. This allowed me to set a similarity threshold. 
@@ -86,6 +87,11 @@ The search algorithm has the following shortcomings:
 * it cannot deal with out of vocabulary words. A possible work around is to look up the most [similar words](https://github.com/alvercau/Q-A-System/blob/master/notebooks/Keyword_similarity.ipynb) and check whether these are in the database. However, this made the query too complex and less accurate, so I decided to abandon this strategy.
 * when questions about authors are asked, the search is limited to papers written by these authors. However, papers written by other authors may contain references to work of the queried authors that may be relevant for the summary.
 * the structure of the question is not taken into account because the search is keyword based. For instance, a question like 'What do you know about tense semantics?' will result into a summary based on the keywords 'know', 'tense' and 'semantics'. It would be better to do the query on 'tense semantics' only. For this to be possible, it is necessary to automatically identify the scope of the question. In general, in English, the scope falls on the most deeply embedded verbal argument. Restricting search with taking into account the semantic structure of the question thus requires syntactic parsing of the question (or some other techniques that allow for keyword ranking).
+
+The answer generation has the following shortcomings:
+* it's slow when questions about very general things are asked
+* the answer contains acronyms. It would be better to expand these.
+* sentence simplification: now we have 'hanging' semantic connectors, because the sentences are simply extracted from the papers. It would be better to get rid of those that accur at the beginning of each sentence.
 
 ### [The bot](https://github.com/alvercau/Q-A-System/blob/master/search.py)
 The back end of the bot itself is a Flask app. The front-end is written in CSS and JS.
